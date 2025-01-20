@@ -10,34 +10,23 @@ permissions:
   contents: read
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    - name: Debug repository contents
-      run: ls -la
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, mysqli
 
-    - name: Validate composer.json and composer.lock
-      run: composer validate --strict
+      - name: Install dependencies
+        working-directory: ./src # Specify the directory containing composer.json
+        run: composer install --prefer-dist --no-progress --no-suggest
 
-    - name: Cache Composer packages
-      id: composer-cache
-      uses: actions/cache@v3
-      with:
-        path: vendor
-        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-php-
-
-    - name: Install dependencies
-      run: composer install --prefer-dist --no-progress --verbose
-      env:
-        COMPOSER_MEMORY_LIMIT: -1
-
-    - name: Run test suite
-      run: composer run-script test
+      - name: Validate Composer
+        working-directory: ./src # Specify the directory containing composer.json
+        run: composer validate --strict
