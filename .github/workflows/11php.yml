@@ -11,19 +11,19 @@ permissions:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
 
-    - name: Update Composer
-      run: composer self-update
+    - name: Debug repository contents
+      run: ls -la
 
-    - name: Validate composer files
+    - name: Validate composer.json and composer.lock
       run: composer validate --strict
-      env:
-        COMPOSER_ALLOW_XDEBUG: 1
 
     - name: Cache Composer packages
       id: composer-cache
@@ -39,14 +39,5 @@ jobs:
       env:
         COMPOSER_MEMORY_LIMIT: -1
 
-    - name: List installed packages
-      run: composer show --no-dev
-
     - name: Run test suite
       run: composer run-script test
-
-    - name: Debug Workflow
-      if: failure()
-      run: |
-        echo "Workflow failed at step ${{ steps.failed_step }}."
-        cat composer.json
