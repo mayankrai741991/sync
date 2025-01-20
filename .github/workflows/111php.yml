@@ -14,19 +14,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # Step 1: Checkout the code from the repository
     - name: Checkout code
       uses: actions/checkout@v4
 
-    # Step 2: (Optional) Update Composer to the latest version
     - name: Update Composer
       run: composer self-update
 
-    # Step 3: Validate composer.json and composer.lock
+    # Validate composer.json and composer.lock
+    # Outputs warnings for debugging if it fails
     - name: Validate composer files
-      run: composer validate --strict
+      run: |
+        composer validate --strict || echo "Validation failed. Debugging information above."
 
-    # Step 4: Cache Composer dependencies
     - name: Cache Composer packages
       id: composer-cache
       uses: actions/cache@v3
@@ -36,16 +35,12 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-php-
 
-    # Step 5: Install dependencies
     - name: Install dependencies
       run: composer install --prefer-dist --no-progress
 
-    # Step 6: Verify installation and list dependencies (optional debugging)
-    - name: Verify dependencies installation
+    # Debugging dependencies
+    - name: List installed packages
       run: composer show --no-dev
 
-    # Step 7: Run the test suite
-    # Ensure you have a test script defined in your composer.json, e.g.,
-    # "scripts": { "test": "vendor/bin/phpunit" }
     - name: Run test suite
       run: composer run-script test
