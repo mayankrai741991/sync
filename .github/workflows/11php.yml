@@ -12,10 +12,13 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
-
+    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+
+      - name: List contents of repository (for debugging)
+        run: ls -la
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -23,8 +26,10 @@ jobs:
           php-version: '8.2'
           extensions: mbstring, mysqli
 
-      - name: Install dependencies
-        run: composer install --prefer-dist --no-progress --no-suggest
+      - name: Install Composer dependencies
+        working-directory: ./src # Update to the directory containing composer.json
+        run: composer install --prefer-dist --no-progress
 
       - name: Validate Composer
+        working-directory: ./src # Update this line too
         run: composer validate --strict
