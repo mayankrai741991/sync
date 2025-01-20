@@ -24,9 +24,7 @@ jobs:
           extensions: mbstring, mysqli
 
       - name: Install dependencies
-        working-directory: ./src # Specify the directory containing composer.json
         run: composer install --prefer-dist --no-progress --no-suggest
 
       - name: Validate Composer
-        working-directory: ./src # Specify the directory containing composer.json
         run: composer validate --strict
