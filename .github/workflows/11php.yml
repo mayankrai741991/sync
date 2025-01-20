@@ -20,11 +20,10 @@ jobs:
     - name: Update Composer
       run: composer self-update
 
-    # Validate composer.json and composer.lock
-    # Outputs warnings for debugging if it fails
     - name: Validate composer files
-      run: |
-        composer validate --strict || echo "Validation failed. Debugging information above."
+      run: composer validate --strict
+      env:
+        COMPOSER_ALLOW_XDEBUG: 1
 
     - name: Cache Composer packages
       id: composer-cache
@@ -36,11 +35,18 @@ jobs:
           ${{ runner.os }}-php-
 
     - name: Install dependencies
-      run: composer install --prefer-dist --no-progress
+      run: composer install --prefer-dist --no-progress --verbose
+      env:
+        COMPOSER_MEMORY_LIMIT: -1
 
-    # Debugging dependencies
     - name: List installed packages
       run: composer show --no-dev
 
     - name: Run test suite
       run: composer run-script test
+
+    - name: Debug Workflow
+      if: failure()
+      run: |
+        echo "Workflow failed at step ${{ steps.failed_step }}."
+        cat composer.json
