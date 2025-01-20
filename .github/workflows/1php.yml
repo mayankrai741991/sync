@@ -1,0 +1,46 @@
+name: PHP Composer
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Step 1: Checkout the code from the repository
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    # Step 2: Validate composer.json and composer.lock files
+    - name: Validate composer files
+      run: composer validate --strict
+
+    # Step 3: Cache Composer dependencies to speed up workflow
+    - name: Cache Composer packages
+      id: composer-cache
+      uses: actions/cache@v3
+      with:
+        path: vendor
+        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-php-
+
+    # Step 4: (Optional) Update to the latest Composer version
+    - name: Update Composer
+      run: composer self-update
+
+    # Step 5: Install dependencies
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress
+
+    # Step 6: Run the test suite (optional; configure in composer.json)
+    - name: Run test suite
+      run: composer run-script test
+      # Uncomment above if `test` script is defined in composer.json
