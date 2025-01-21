@@ -1,0 +1,54 @@
+name: PHP CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: centos
+
+    steps:
+      # Checkout the repository
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # Setup PHP environment
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1' # Specify your PHP version
+          extensions: mbstring, pdo, pdo_mysql # Add required extensions
+          ini-values: |
+            memory_limit=-1
+          coverage: none
+
+      # Install dependencies (Composer)
+      - name: Install Dependencies
+        run: |
+          composer install
+
+      # Run tests
+      - name: Run Tests
+        run: |
+          php artisan test # Replace with your test command
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build # Run only after the build job succeeds
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # Deploy to server using rsync or scp
+      - name: Deploy to Server
+       
+
+      # Optional: Cleanup
+      - name: Cleanup
+        run: rm -f deploy_key.pem
